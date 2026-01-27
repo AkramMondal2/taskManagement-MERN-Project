@@ -38,7 +38,6 @@ const UpdateModal = ({ setShowUpdateModal, taskId, setTaskId }) => {
       setShowUpdateModal(false);
       setTaskId(null);
     } catch (err) {
-      console.log(err);
       toast.error(err?.message || "Failed to add task");
     }
   };
