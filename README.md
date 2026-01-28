@@ -79,7 +79,10 @@ A **full-stack Task Management web application** built using the MERN stack. Thi
 - Secure API calls with JWT
 
 ---
-
+### Clone Repository
+```bash
+git clone https://github.com/your-username/taskManagement.git
+cd taskManagement
 
 
 
