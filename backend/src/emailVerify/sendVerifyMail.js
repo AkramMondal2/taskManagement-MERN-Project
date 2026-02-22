@@ -1,34 +1,35 @@
 import nodemailer from "nodemailer";
 
 export const sendVerifyMail = async (token, email) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // App Password
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
 
-  const mailConfigurations = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Email Verification",
-    text: `Hi! There, You have recently visited 
-           our website and entered your email.
-           Please follow the given link to verify your email
-           ${process.env.CLIENT_URL}/emailVerify/${token} 
-           please don't share with anyone
-           Thanks`,
-  };
+    const mailConfigurations = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Email Verification",
+      text: `Hi! Please verify your email by clicking the link below:
+              ${process.env.CLIENT_URL}/emailVerify/${token}
+              Do not share this link with anyone.
+              Thanks`,
+    };
 
-  transporter.sendMail(mailConfigurations, function (error, info) {
-    if (error) {
-      console.error("Error sending email:", error);
-      throw new Error(error);
-    }
+    const info = await transporter.sendMail(mailConfigurations);
+
     console.log("Email Sent Successfully");
-    console.log(info);
-  });
+    console.log(info.messageId);
+
+    return info;
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+    throw new Error("Failed to send verification email");
+  }
 };
