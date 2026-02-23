@@ -3,7 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendVerifyMail } from "../emailVerify/sendVerifyMail.js";
 import sessionSchema from "../models/sessionSchema.js";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const register = async (req, res) => {
   try {
@@ -267,34 +269,39 @@ export const forgotPassword = async (req, res) => {
     const resetToken = jwt.sign(
       { id: user._id },
       process.env.RESET_PASSWORD_SECRET,
-      { expiresIn: "15m" },
+      { expiresIn: "15m" }
     );
 
     const resetLink = `${process.env.CLIENT_URL}/resetPassword/${resetToken}`;
 
-    const transporter = nodemailer.createTransport({
-       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: "onboarding@resend.dev", // free testing sender
       to: email,
       subject: "Reset Password",
-      text: `Click the link to reset your password:\n\n${resetLink}\n\nThis link expires in 15 minutes.`,
+      html: `
+        <div style="font-family:sans-serif">
+          <h2>Reset Your Password</h2>
+          <p>Click the button below to reset your password:</p>
+          
+          <a href="${resetLink}" 
+             style="display:inline-block;padding:10px 20px;
+             background:#d9534f;color:white;
+             text-decoration:none;border-radius:5px;">
+             Reset Password
+          </a>
+
+          <p>This link expires in 15 minutes.</p>
+        </div>
+      `,
     });
 
     return res.status(200).json({
       success: true,
       message: "Password reset link sent to email",
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("Forgot Password Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
