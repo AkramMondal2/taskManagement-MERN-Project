@@ -1,9 +1,10 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteTask } from "../features/taskSlice";
 
 const DeleteModal = ({ setShowDeleteModal, taskId, setTaskId }) => {
   const dispatch = useDispatch();
+  const loading = useSelector((state) => state.task.loading);
 
   const handelDelete = async () => {
     try {
@@ -90,11 +91,17 @@ const DeleteModal = ({ setShowDeleteModal, taskId, setTaskId }) => {
 
                 <button
                   onClick={handelDelete}
+                  disabled={loading}
                   type="submit"
-                  className="inline-flex items-center justify-center py-1 gap-1 font-medium rounded-lg border transition-colors outline-none focus:ring-offset-2 focus:ring-2 focus:ring-inset dark:focus:ring-offset-0 min-h-[2.25rem] px-4 text-sm text-white shadow focus:ring-white border-transparent bg-blue-600 hover:bg-blue-500 focus:bg-blue-700 focus:ring-offset-red-700"
+                  className={`inline-flex items-center justify-center py-1 gap-1 font-medium rounded-lg border transition-colors outline-none focus:ring-offset-2 focus:ring-2 focus:ring-inset dark:focus:ring-offset-0 min-h-[2.25rem] px-4 text-sm text-white shadow focus:ring-white border-transparent 
+                 ${
+                   loading
+                     ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
+                     : "bg-blue-600 hover:bg-blue-500 focus:bg-blue-700 focus:ring-offset-red-700"
+                 }`}
                 >
                   <span className="flex items-center gap-1">
-                    <span className="">Confirm</span>
+                    <span>{loading ? "Deleting..." : "Confirm"}</span>
                   </span>
                 </button>
               </div>
