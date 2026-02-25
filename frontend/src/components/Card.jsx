@@ -18,11 +18,14 @@ const Card = ({ home, setAddFormModal, task }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [taskId, setTaskId] = useState(null);
-  const [loadingId, setLoadingId] = useState(null);
+  const [loading, setLoading] = useState({
+    id: null,
+    type: null,
+  });
 
   const handleComplete = async (id) => {
     try {
-      setLoadingId(id);
+      setLoading({ id, type: "complete" });
       await api.put(`/api/task/updatecompletetask/${id}`);
 
       dispatch(updateCompletedTaskStatus(id));
@@ -31,22 +34,21 @@ const Card = ({ home, setAddFormModal, task }) => {
       console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
-      setLoadingId(null);
+      setLoading({ id: null, type: null });
     }
   };
 
   const handleImportant = async (id) => {
     try {
-      setLoadingId(id);
+      setLoading({ id, type: "important" });
       await api.put(`/api/task/updateimportanttask/${id}`);
-
       dispatch(updateImportantTaskStatus(id));
       toast.success("Updated successfully");
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
-      setLoadingId(null);
+      setLoading({ id: null, type: null });
     }
   };
 
@@ -63,15 +65,15 @@ const Card = ({ home, setAddFormModal, task }) => {
           </div>
           <div className="flex flex-col-reverse sm:flex-row gap-5  sm:gap-0 items-center w-full mt-4">
             <button
-              disabled={loadingId === item._id}
+              disabled={loading.id === item._id && loading.type === "complete"}
               onClick={() => handleComplete(item._id)}
               className={`${
                 item.completedTask === false ? "bg-red-700" : "bg-green-700"
               }
-               ${loadingId === item._id ? "opacity-50 cursor-not-allowed" : ""}
+               ${loading.id === item._id && loading.type === "complete" ? "opacity-50 cursor-not-allowed" : ""}
                text-white font-semibold p-2 rounded w-full sm:w-3/6`}
             >
-              {loadingId === item._id
+              {loading.id === item._id && loading.type === "complete"
                 ? "Updating..."
                 : item.completedTask === false
                   ? "InCompleted"
@@ -79,10 +81,14 @@ const Card = ({ home, setAddFormModal, task }) => {
             </button>
             <div className="flex justify-around w-full sm:w-3/6 text-2xl font-bold">
               <button
-                disabled={loadingId === item._id}
+                disabled={
+                  loading.id === item._id && loading.type === "important"
+                }
                 onClick={() => handleImportant(item._id)}
                 className={
-                  loadingId === item._id ? "opacity-50 cursor-not-allowed" : ""
+                  loading.id === item._id && loading.type === "important"
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }
               >
                 {item.importantTask === false ? (
