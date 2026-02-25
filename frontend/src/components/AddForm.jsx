@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addTask } from "../features/taskSlice";
 import { toast } from "react-toastify";
 
 const AddForm = ({ setAddFormModal }) => {
   const dispatch = useDispatch();
   const [data, setData] = useState({ title: "", description: "" });
+  const loading = useSelector((state) => state.task.loading);
+
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
@@ -74,9 +76,12 @@ const AddForm = ({ setAddFormModal }) => {
           <div className="text-center">
             <button
               type="submit"
-              className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 "
+              disabled={loading}
+              className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 
+              ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+              `}
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

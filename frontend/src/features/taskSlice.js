@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api/axios"; 
+import api from "../api/axios";
 
 const initialState = {
   task: [],
@@ -23,19 +23,16 @@ export const fetchTask = createAsyncThunk(
 );
 
 // Add task
-export const addTask = createAsyncThunk(
-  "task/add",
-  async (data, thunkApi) => {
-    try {
-      const response = await api.post("/api/task/addtask", data);
-      return response.data.data;
-    } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data?.message || "Failed to add task",
-      );
-    }
-  },
-);
+export const addTask = createAsyncThunk("task/add", async (data, thunkApi) => {
+  try {
+    const response = await api.post("/api/task/addtask", data);
+    return response.data.data;
+  } catch (error) {
+    return thunkApi.rejectWithValue(
+      error.response?.data?.message || "Failed to add task",
+    );
+  }
+});
 
 // Delete task
 export const deleteTask = createAsyncThunk(
@@ -57,10 +54,7 @@ export const updateTask = createAsyncThunk(
   "task/update",
   async ({ taskId, data }, thunkApi) => {
     try {
-      const response = await api.put(
-        `/api/task/updatedtask/${taskId}`,
-        data,
-      );
+      const response = await api.put(`/api/task/updatedtask/${taskId}`, data);
       return response.data.data;
     } catch (error) {
       return thunkApi.rejectWithValue(
@@ -122,12 +116,13 @@ export const taskSlice = createSlice({
 
       // Delete
       .addCase(deleteTask.fulfilled, (state, action) => {
-        state.task = state.task.filter(
-          (task) => task._id !== action.payload,
-        );
+        state.task = state.task.filter((task) => task._id !== action.payload);
       })
 
       // Update
+      .addCase(updateTask.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(updateTask.fulfilled, (state, action) => {
         const index = state.task.findIndex(
           (task) => task._id === action.payload._id,
@@ -135,14 +130,15 @@ export const taskSlice = createSlice({
         if (index !== -1) {
           state.task[index] = action.payload;
         }
+      })
+      .addCase(updateTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const {
-  updateCompletedTaskStatus,
-  updateImportantTaskStatus,
-} = taskSlice.actions;
+export const { updateCompletedTaskStatus, updateImportantTaskStatus } =
+  taskSlice.actions;
 
 export default taskSlice.reducer;
-

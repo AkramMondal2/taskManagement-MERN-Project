@@ -12,6 +12,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const data = { email: "", password: "" };
   const [inputData, setInputData] = useState(data);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,20 +25,23 @@ const Login = () => {
     e.preventDefault();
     if (inputData.email === "" || inputData.password === "") {
       toast.error("All fields are required");
-    } else {
-      try {
-        const response = await api.post("api/user/login", inputData);
-        toast.success(response.data?.message || "Loggedin successfully!");
-        setInputData({ email: "", password: "" });
-        localStorage.setItem("userName", response.data.name);
-        localStorage.setItem("id", response.data.id);
-        localStorage.setItem("accessToken", response.data.accessToken);
-        localStorage.setItem("refreshToken", response.data.refreshToken);
-        dispatch(login());
-        navigate("/");
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong!");
-      }
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await api.post("api/user/login", inputData);
+      toast.success(response.data?.message || "Loggedin successfully!");
+      setInputData({ email: "", password: "" });
+      localStorage.setItem("userName", response.data.name);
+      localStorage.setItem("id", response.data.id);
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      dispatch(login());
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -92,11 +96,14 @@ const Login = () => {
               ForgotPassword
             </p>
           </Link>
-          <button
+              <button
             type="submit"
-            className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 mb-2 "
+            disabled={loading}
+            className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 mb-2 
+           ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+          `}
           >
-            Login
+            {loading ? "Login..." : "Login"}
           </button>
           <p className="text-gray-400">
             Don't have an account?
@@ -113,7 +120,7 @@ const Login = () => {
           </Link>
         </div>
       </form>
-      <Footer/>
+      <Footer />
     </>
   );
 };

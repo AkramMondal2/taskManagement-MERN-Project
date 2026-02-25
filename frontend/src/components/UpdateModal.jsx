@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { updateTask } from "../features/taskSlice";
@@ -8,6 +8,8 @@ import api from "../api/axios";
 const UpdateModal = ({ setShowUpdateModal, taskId, setTaskId }) => {
   const dispatch = useDispatch();
   const [data, setData] = useState({ title: "", description: "" });
+  const loading = useSelector((state) => state.task.loading);
+
   useEffect(() => {
     getUpdatedData();
   }, []);
@@ -96,9 +98,12 @@ const UpdateModal = ({ setShowUpdateModal, taskId, setTaskId }) => {
           <div className="text-center">
             <button
               type="submit"
-              className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 "
+              disabled={loading}
+              className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 
+              ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+              `}
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

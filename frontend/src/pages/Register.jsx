@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
 import Nav from "../components/Nav";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Footer from "../components/Footer";
 import api from "../api/axios";
@@ -10,6 +10,7 @@ const Register = () => {
   const data = { userName: "", email: "", password: "" };
   const [inputData, setInputData] = useState(data);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setInputData({ ...inputData, [e.target.name]: e.target.value });
@@ -17,20 +18,27 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (
       inputData.userName === "" ||
       inputData.email === "" ||
       inputData.password === ""
     ) {
       toast.error("All fields are required");
-    } else {
-      try {
-        const response = await api.post("/api/user/register", inputData);
-        toast.success(response.data?.message || "Registered successfully!");
-        setInputData({ userName: "", email: "", password: "" });
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong!");
-      }
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await api.post("/api/user/register", inputData);
+
+      toast.success(response.data?.message || "Registered successfully!");
+      setInputData({ userName: "", email: "", password: "" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -97,9 +105,12 @@ const Register = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 mb-2 "
+            disabled={loading}
+            className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 mb-2 
+           ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+          `}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
           <p className="text-gray-400">
             Already have an account?

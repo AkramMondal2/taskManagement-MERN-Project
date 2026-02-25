@@ -8,6 +8,7 @@ import api from "../api/axios";
 
 const ResendVerification = () => {
   const [inputData, setInputData] = useState({ email: "" });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -15,18 +16,21 @@ const ResendVerification = () => {
     e.preventDefault();
     if (inputData.email === "") {
       toast.error("All fields are required");
-    } else {
-      try {
-        const response = await api.post(
-          "/api/user/resendVerification",
-          inputData,
-        );
-        setInputData({ email: "" });
-        toast.success(response.data?.message || "Email send successfuly");
-        navigate("/login");
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong!");
-      }
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await api.post(
+        "/api/user/resendVerification",
+        inputData,
+      );
+      setInputData({ email: "" });
+      toast.success(response.data?.message || "Email send successfuly");
+      navigate("/login");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -56,9 +60,12 @@ const ResendVerification = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 mb-2 "
+            disabled={loading}
+            className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 mb-2 
+           ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+          `}
           >
-            Submit
+            {loading ? "Submiting..." : "Submit"}
           </button>
         </div>
       </form>

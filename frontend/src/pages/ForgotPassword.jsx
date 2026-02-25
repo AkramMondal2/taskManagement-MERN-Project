@@ -7,6 +7,7 @@ import api from "../api/axios";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,18 +17,19 @@ const ForgotPassword = () => {
     }
 
     try {
+      setLoading(true);
       const response = await api.post("/api/user/forgotPassword", {
         email,
       });
 
       toast.success(
-        response.data?.message || "Password reset link sent to your email"
+        response.data?.message || "Password reset link sent to your email",
       );
       setEmail("");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Something went wrong"
-      );
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,10 +48,7 @@ const ForgotPassword = () => {
           Enter your registered email to receive a reset link
         </p>
 
-        <label
-          htmlFor="email"
-          className="text-lg font-semibold text-blue-500"
-        >
+        <label htmlFor="email" className="text-lg font-semibold text-blue-500">
           Email
         </label>
 
@@ -64,11 +63,14 @@ const ForgotPassword = () => {
         />
 
         <div className="text-center">
-          <button
+             <button
             type="submit"
-            className="text-lg mx-auto bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded text-white font-semibold mt-4 mb-2"
+            disabled={loading}
+            className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 mb-2 
+           ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
+          `}
           >
-            Send Reset Link
+            {loading ? "Sending..." : "Send Reset Link"}
           </button>
 
           <p className="text-gray-400 mt-2">
