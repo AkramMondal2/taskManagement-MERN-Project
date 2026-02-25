@@ -18,9 +18,11 @@ const Card = ({ home, setAddFormModal, task }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [taskId, setTaskId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleComplete = async (id) => {
     try {
+      setLoading(true);
       await api.put(`/api/task/updatecompletetask/${id}`);
 
       dispatch(updateCompletedTaskStatus(id));
@@ -28,11 +30,14 @@ const Card = ({ home, setAddFormModal, task }) => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleImportant = async (id) => {
     try {
+      setLoading(true);
       await api.put(`/api/task/updateimportanttask/${id}`);
 
       dispatch(updateImportantTaskStatus(id));
@@ -40,6 +45,8 @@ const Card = ({ home, setAddFormModal, task }) => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,15 +63,26 @@ const Card = ({ home, setAddFormModal, task }) => {
           </div>
           <div className="flex flex-col-reverse sm:flex-row gap-5  sm:gap-0 items-center w-full mt-4">
             <button
+              disabled={loading}
               onClick={() => handleComplete(item._id)}
               className={`${
                 item.completedTask === false ? "bg-red-700" : "bg-green-700"
-              } text-white font-semibold p-2 rounded w-full sm:w-3/6`}
+              } 
+             ${loading ? "opacity-50 cursor-not-allowed" : ""}
+               text-white font-semibold p-2 rounded w-full sm:w-3/6`}
             >
-              {item.completedTask === false ? "InCompleted" : "Completed"}
+              {loading
+                ? "Updating..."
+                : item.completedTask === false
+                  ? "InCompleted"
+                  : "Completed"}
             </button>
             <div className="flex justify-around w-full sm:w-3/6 text-2xl font-bold">
-              <button onClick={() => handleImportant(item._id)}>
+              <button
+                disabled={loading}
+                onClick={() => handleImportant(item._id)}
+                className={loading ? "opacity-50 cursor-not-allowed" : ""}
+              >
                 {item.importantTask === false ? (
                   <FaRegHeart />
                 ) : (
