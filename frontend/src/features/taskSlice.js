@@ -119,6 +119,7 @@ export const taskSlice = createSlice({
         state.loading = true;
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
+        state.loading = false;
         state.task = state.task.filter((task) => task._id !== action.payload);
       })
       .addCase(deleteTask.rejected, (state, action) => {
@@ -131,6 +132,7 @@ export const taskSlice = createSlice({
         state.loading = true;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
+        state.loading = false;
         const index = state.task.findIndex(
           (task) => task._id === action.payload._id,
         );

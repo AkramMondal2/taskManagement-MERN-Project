@@ -75,11 +75,10 @@ const Sidebar = () => {
       </div>
       <div>
         <button
-          type="submit"
-          disabled={loading}
-          className={`text-lg mx-auto py-2 px-4 rounded text-white font-semibold mt-4 mb-2 
-           ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}
-          `}
+          onClick={handleLogout}
+          disabled ={loading}
+          type="button"
+          className={`sm:text-lg py-2 w-full rounded text-white  font-semibold ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} `}
         >
           Logout
         </button>
